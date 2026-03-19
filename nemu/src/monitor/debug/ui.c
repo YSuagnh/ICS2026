@@ -1,3 +1,5 @@
+#include "cpu/reg.h"
+#include "memory/memory.h"
 #include "monitor/monitor.h"
 #include "monitor/expr.h"
 #include "monitor/watchpoint.h"
@@ -36,6 +38,44 @@ static int cmd_q(char *args) {
   return -1;
 }
 
+static int cmd_si(char *args) {
+  int num = args == NULL ? 1 : 0;
+  if(!num) {
+    int len = strlen(args);
+    for(int i = 0; i < len; ++i) {
+      num = num * 10 + args[i] - '0';
+    }
+  }
+  cpu_exec(num);
+  return 0;
+}
+
+static int cmd_info(char *args) {
+  if(args[0] == 'r') {
+    for(int i = 0; i < 8; ++i) {
+      printf("%s        %#X       %u\n", regsl[i], cpu.gpr[i]._32, cpu.gpr[i]._32);
+    }
+  } else if(args[0] == 'w') {
+
+  }
+  return 0;
+}
+
+static int cmd_x(char *args) {
+  char *cnum = strtok(args, " ");
+  int num = 0, len = strlen(cnum);
+  for(int i = 0; i < len; ++i) {
+    num = num * 10 + cnum[i] - '0';
+  }
+  char *start = args + len + 1;
+  int st = strtol(start + 2, NULL, 16);
+  for(int i = 0, x; i < num; ++i, st += 4) {
+    x = vaddr_read(st, 4);
+    printf("%#X        %#X\n", st, x);
+  }
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -46,6 +86,9 @@ static struct {
   { "help", "Display informations about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
+  { "si", "Single Instruction for n steps", cmd_si },
+  { "info", "r for Register status, w for Watchpoint status", cmd_info },
+  { "x", "Scan memory", cmd_x }, 
 
   /* TODO: Add more commands */
 
