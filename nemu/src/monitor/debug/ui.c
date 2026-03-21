@@ -76,6 +76,17 @@ static int cmd_x(char *args) {
   return 0;
 }
 
+static int cmd_p(char *args) {
+  bool success = true;
+  uint32_t x = expr(args, &success);
+  if(!success) {
+    printf("Irregular Expr\n");
+  } else {
+    printf("Value of the Expr is %d\n", x);
+  }
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -89,6 +100,7 @@ static struct {
   { "si", "Single Instruction for n steps", cmd_si },
   { "info", "r for Register status, w for Watchpoint status", cmd_info },
   { "x", "Scan memory", cmd_x }, 
+  { "p", "Eval expr", cmd_p},
 
   /* TODO: Add more commands */
 
