@@ -53,10 +53,11 @@ static int cmd_si(char *args) {
 static int cmd_info(char *args) {
   if(args[0] == 'r') {
     for(int i = 0; i < 8; ++i) {
-      printf("%s        %#X       %u\n", regsl[i], cpu.gpr[i]._32, cpu.gpr[i]._32);
+      printf("%s        %#x       %u\n", regsl[i], cpu.gpr[i]._32, cpu.gpr[i]._32);
     }
   } else if(args[0] == 'w') {
-
+    printf("Num     Waht\n");
+    print_wp();
   }
   return 0;
 }
@@ -68,10 +69,15 @@ static int cmd_x(char *args) {
     num = num * 10 + cnum[i] - '0';
   }
   char *start = args + len + 1;
-  int st = strtol(start + 2, NULL, 16);
+  bool success = true;
+  int st = expr(start, &success);
+  if(!success) {
+    printf("Irregular Expr\n");
+    return 0;
+  }
   for(int i = 0, x; i < num; ++i, st += 4) {
     x = vaddr_read(st, 4);
-    printf("%#X        %#X\n", st, x);
+    printf("%#x        %#x\n", st, x);
   }
   return 0;
 }
@@ -83,6 +89,26 @@ static int cmd_p(char *args) {
     printf("Irregular Expr\n");
   } else {
     printf("Value of the Expr is %d\n", x);
+  }
+  return 0;
+}
+
+static int cmd_w(char *args) {
+  bool success = true;
+  uint32_t val = expr(args, &success);
+  if(!success) {
+    printf("Irregular Expr\n");
+    return 0;
+  }
+  new_wp(args, val);
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  bool success = true;
+  int x = expr(args, &success);
+  if(success) {
+    free_wp(x);
   }
   return 0;
 }
@@ -99,8 +125,10 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
   { "si", "Single Instruction for n steps", cmd_si },
   { "info", "r for Register status, w for Watchpoint status", cmd_info },
-  { "x", "Scan memory", cmd_x }, 
   { "p", "Eval expr", cmd_p},
+  { "x", "Scan memory", cmd_x }, 
+  { "w", "Set watchpoint", cmd_w},
+  { "d", "Delete watchpoint", cmd_d},
 
   /* TODO: Add more commands */
 

@@ -38,9 +38,9 @@ static struct rule {
   {"/", '/'},
   {"\\(", '('},
   {"\\)", ')'},
+  {"(0(x|X)[1-9a-eA-E][0-9a-eA-E]*)|(0(x|X)0)", TK_HEX},
   {"(-?[1-9][0-9]*)|0", TK_DEC},
-  {"(0x[1-9a-e][0-9a-e]*)|(0x0)", TK_HEX},
-  {"$[0-7]", TK_REG},
+  {"\\$[a-z]+", TK_REG},
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
@@ -95,6 +95,8 @@ static bool make_token(char *e) {
          * of tokens, some extra actions should be performed.
          */
         switch (rules[i].token_type) {
+          case TK_NOTYPE :
+            break;
           case TK_HEX :
           case TK_REG :
           case TK_DEC :
@@ -106,9 +108,9 @@ static bool make_token(char *e) {
             memcpy(tokens[nr_token].str, substr_start, substr_len);
           default :
             tokens[nr_token].type = rules[i].token_type;
+            ++nr_token;
             break;
         }
-        ++nr_token;
         break;
       }
     }
@@ -147,6 +149,9 @@ bool chk_pat(int l, int r) {
 }
 
 uint32_t reg_val(int p, bool *success) {
+  if(!strcmp(tokens[p].str + 1, "eip")) {
+    return cpu.eip;
+  }
   for(int i = 0; i < 8; ++i) {
     if(!strcmp(tokens[p].str + 1, regsl[i])) {
       return cpu.gpr[i]._32;
