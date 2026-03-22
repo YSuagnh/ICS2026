@@ -72,7 +72,7 @@ typedef struct token {
 Token tokens[32];
 int nr_token;
 
-static bool make_token(char *e) {
+static bool make_token(char *e, bool flag) {
   int position = 0;
   int i;
   regmatch_t pmatch;
@@ -86,7 +86,7 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+        if(flag) Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
             i, rules[i].regex, position, substr_len, substr_len, substr_start);
         position += substr_len;
 
@@ -249,10 +249,10 @@ uint32_t eval(int l, int r, bool *success) {
 }
 
 uint32_t expr(char *e, bool *success) {
-  if (!make_token(e)) {
+  if (!make_token(e, *success)) {
     *success = false;
     return 0;
-  }
+  } else *success = true;
 
   /* TODO: Insert codes to evaluate the expression. */
   for(int i = 0, num = 0; i < nr_token; ++i) {
