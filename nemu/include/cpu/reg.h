@@ -31,6 +31,29 @@ typedef struct {
   } ;
 
   vaddr_t eip;
+  union {
+    rtlreg_t flags;
+    struct {
+      uint8_t CF : 1;
+      uint8_t RES0 : 1;
+      uint8_t PF : 1;
+      uint8_t RES1 : 1;
+      uint8_t AF : 1;
+      uint8_t RES2 : 1;
+      uint8_t ZF : 1;
+      uint8_t SF : 1;
+      uint8_t TF : 1;
+      uint8_t IF : 1;
+      uint8_t DF : 1;
+      uint8_t OF : 1;
+      uint8_t IOPL : 1;
+      uint8_t NT : 1;
+      uint8_t RES3 : 1;
+      uint8_t RF : 1;
+      uint8_t VM : 1;
+      uint32_t RES4 : 15;
+    } eflags;
+  } ;
 
 } CPU_state;
 
