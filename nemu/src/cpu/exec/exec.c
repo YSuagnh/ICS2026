@@ -233,9 +233,6 @@ void exec_wrapper(bool print_flag) {
 
   decoding.seq_eip = cpu.eip;
   exec_real(&decoding.seq_eip);
-  if(WP_chk()) {
-    nemu_state = NEMU_STOP;
-  }
 
 #ifdef DEBUG
   int instr_len = decoding.seq_eip - cpu.eip;
