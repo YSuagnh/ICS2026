@@ -2,6 +2,7 @@
 #include "cpu/exec.h"
 #include "cpu/reg.h"
 #include "cpu/rtl.h"
+#include "debug.h"
 
 make_EHelper(mov) {
   operand_write(id_dest, &id_src->val);
@@ -32,17 +33,29 @@ make_EHelper(popa) {
 }
 
 make_EHelper(leave) {
-  TODO();
+  int width = decoding.is_operand_size_16 ? 2 : 4;
+  rtl_lr(&t0, R_EBP, width);
+  rtl_sr(R_ESP, width, &t0);
 
+  rtl_lm(&t1, &t0, width);
+  rtl_addi(&t0, &t0, width);
+  rtl_sr(R_ESP, width, &t0);
+  rtl_sr(R_EBP, width, &t1);
+  
   print_asm("leave");
 }
 
 make_EHelper(cltd) {
   if (decoding.is_operand_size_16) {
-    TODO();
+    rtl_lr_w(&t0, R_AX);
+    rtl_sext(&t1, &t0, 2);
+    rtl_sr_l(R_EAX, &t1);
   }
   else {
-    TODO();
+    rtl_lr_l(&t0, R_EAX);
+    rtl_msb(&t1, &t0, 4);
+    rtl_sub(&t2, &tzero, &t1);
+    rtl_sr_l(R_EDX, &t2);
   }
 
   print_asm(decoding.is_operand_size_16 ? "cwtl" : "cltd");

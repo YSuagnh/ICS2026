@@ -1,5 +1,7 @@
+#include "cpu/decode.h"
 #include "cpu/exec.h"
 #include "cpu/rtl.h"
+#include "debug.h"
 
 /* shared by all helper functions */
 DecodeInfo decoding;
@@ -38,7 +40,9 @@ static inline make_DopHelper(SI) {
    *
    op->simm = ???
    */
-  op->simm = instr_fetch(eip, op->width);
+  rtl_li(&t3, instr_fetch(eip, op->width));
+  rtl_sext(&t2, &t3, op->width);
+  op->simm = t2;
   rtl_li(&op->val, op->simm);
 
 #ifdef DEBUG
@@ -262,7 +266,7 @@ make_DHelper(a2O) {
 make_DHelper(J) {
   decode_op_SI(eip, id_dest, false);
   // the target address can be computed in the decode stage
-  decoding.jmp_eip = id_dest->simm + *eip;
+  decoding.jmp_eip = id_dest->simm + decoding.seq_eip;
 }
 
 make_DHelper(push_SI) {
