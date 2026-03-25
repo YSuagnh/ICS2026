@@ -1,3 +1,4 @@
+#include "cpu/decode.h"
 #include "cpu/exec.h"
 
 make_EHelper(mov);
@@ -50,3 +51,11 @@ make_EHelper(shr);
 make_EHelper(setcc);
 make_EHelper(not);
 make_EHelper(test);
+
+make_EHelper(lidt);
+make_EHelper(mov_r2cr);
+make_EHelper(mov_cr2r);
+make_EHelper(int);
+make_EHelper(iret);
+make_EHelper(in);
+make_EHelper(out);
