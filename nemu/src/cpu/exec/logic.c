@@ -2,7 +2,7 @@
 #include "cpu/exec.h"
 #include "cpu/rtl.h"
 
-#define width_mask(x) (x == 4 ? 0xffffffffu : ((1u << (x << 3)) - 1))
+#define width_mask(x) ((x) == 4 ? 0xffffffffu : ((1u << ((x) << 3)) - 1))
 
 make_EHelper(test) {
   rtl_and(&t2, &id_dest->val, &id_src->val);
