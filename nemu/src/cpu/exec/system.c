@@ -1,13 +1,19 @@
 #include "cpu/decode.h"
 #include "cpu/exec.h"
 #include "debug.h"
+#include "all-instr.h"
 
 void diff_test_skip_qemu();
 void diff_test_skip_nemu();
 
 make_EHelper(lidt) {
-  TODO();
-
+  cpu.idtr_32.limit = vaddr_read(id_dest->addr, 2);
+  if (decoding.is_operand_size_16) {
+    cpu.idtr_16.base = vaddr_read(id_dest->addr + 2, 3);
+  }
+  else {
+    cpu.idtr_32.base = vaddr_read(id_dest->addr + 2, 4);
+  }
   print_asm_template1(lidt);
 }
 
@@ -28,7 +34,7 @@ make_EHelper(mov_cr2r) {
 }
 
 make_EHelper(int) {
-  TODO();
+  raise_intr(id_dest->imm, decoding.seq_eip);
 
   print_asm("int %s", id_dest->str);
 

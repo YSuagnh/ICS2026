@@ -30,7 +30,19 @@ typedef struct {
     struct { rtlreg_t eax, ecx, edx, ebx, esp, ebp, esi, edi; } ;
   } ;
 
+  rtlreg_t cs;
   vaddr_t eip;
+  union {
+    rtlreg_t idtr;
+    struct {
+      rtlreg_t limit : 16;
+      rtlreg_t base : 24;
+    } idtr_16;
+    struct {
+      rtlreg_t limit : 16;
+      rtlreg_t base : 32;
+    } idtr_32;
+  };
   union {
     rtlreg_t flags;
     struct {

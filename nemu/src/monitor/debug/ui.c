@@ -53,8 +53,10 @@ static int cmd_si(char *args) {
 static int cmd_info(char *args) {
   if(args[0] == 'r') {
     for(int i = 0; i < 8; ++i) {
-      printf("%s        %#x       %u\n", regsl[i], cpu.gpr[i]._32, cpu.gpr[i]._32);
+      printf("%-10s%#-16x%-16u\n", regsl[i], cpu.gpr[i]._32, cpu.gpr[i]._32);
     }
+    printf("eip       %#-16x%-16u\n", cpu.eip, cpu.eip);
+    printf("eflags    %#-16x%-16u\n", cpu.flags, cpu.flags);
   } else if(args[0] == 'w') {
     printf("Num     Waht\n");
     print_wp();
@@ -77,7 +79,7 @@ static int cmd_x(char *args) {
   }
   for(int i = 0, x; i < num; ++i, st += 4) {
     x = vaddr_read(st, 4);
-    printf("%#x        %#x\n", st, x);
+    printf("%#-16x%#-16x\n", st, x);
   }
   return 0;
 }

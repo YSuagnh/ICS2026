@@ -63,3 +63,5 @@ make_EHelper(int);
 make_EHelper(iret);
 make_EHelper(in);
 make_EHelper(out);
+
+void raise_intr(uint8_t NO, vaddr_t ret_addr);

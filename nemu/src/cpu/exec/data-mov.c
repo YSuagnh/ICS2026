@@ -21,9 +21,11 @@ make_EHelper(pop) {
 }
 
 make_EHelper(pusha) {
-  TODO();
-
-  print_asm("pusha");
+  rtl_mv(&t1, &cpu.esp);
+  for(int i = 0; i < 8; ++i) {
+    if(i == 4) rtl_push(&t1);
+    else rtl_push(&cpu.gpr[i]._32);
+  }
 }
 
 make_EHelper(popa) {
