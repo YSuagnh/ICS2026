@@ -65,6 +65,7 @@ void print_wp() {
 bool WP_chk() {
   bool ul = false, flag = false;
   for(WP *it = head; it != NULL; it = it->next) {
+    ul = false;
     if(expr(it->expr, &ul) != it->val) {
       flag = true;
       printf("Watch point %d activated\n", it->NO);

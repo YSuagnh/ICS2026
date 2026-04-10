@@ -29,8 +29,11 @@ make_EHelper(pusha) {
 }
 
 make_EHelper(popa) {
-  TODO();
-
+  for(int i = 7; ~i; --i) {
+    if(i == 4) rtl_pop(&t1);
+    else rtl_pop(&cpu.gpr[i]._32);
+  }
+  rtl_mv(&cpu.esp, &t1);
   print_asm("popa");
 }
 
