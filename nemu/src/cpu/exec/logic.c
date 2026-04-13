@@ -1,6 +1,7 @@
 #include "cpu/decode.h"
 #include "cpu/exec.h"
 #include "cpu/rtl.h"
+#include <stdint.h>
 
 #define width_mask(x) ((x) == 4 ? 0xffffffffu : ((1u << ((x) << 3)) - 1))
 
@@ -170,4 +171,27 @@ make_EHelper(not) {
   rtl_not(&t2);
   operand_write(id_dest, &t2);
   print_asm_template1(not);
+}
+
+make_EHelper(bsf) {
+  TODO();
+
+  print_asm_template2(bsf);
+}
+
+make_EHelper(bsr) {
+  rtl_li(&t0, 1);
+  rtl_set_ZF(&t0);
+  uint32_t val = id_src->val;
+  for(int i = decoding.is_operand_size_16 ? 15 : 31; ~i; --i) {
+    if(val & (1 << i)) {
+      rtl_li(&t1, 0);
+      rtl_set_ZF(&t1);
+      rtl_li(&t2, i);
+      operand_write(id_dest, &t2);
+      break;
+    }
+  }
+  
+  print_asm_template2(bsr);
 }

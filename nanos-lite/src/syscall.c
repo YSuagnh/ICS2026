@@ -1,4 +1,3 @@
-#include "am.h"
 #include "common.h"
 #include "syscall.h"
 
@@ -8,16 +7,30 @@ _RegSet* do_syscall(_RegSet *r) {
   a[1] = SYSCALL_ARG2(r);
   a[2] = SYSCALL_ARG3(r);
   a[3] = SYSCALL_ARG4(r);
-  printf("%x  %d\n", r->eip, a[0]);
   switch (a[0]) {
     case SYS_none :
       r->eax = 1;
-      return r;
+      break;
+    case SYS_write :
+      r->eax = 0;
+      switch (a[1]) {
+        case 1 :
+        case 2 :
+          while (r->eax < a[3]) {
+            _putc(((char *)a[2])[r->eax]);
+            ++r->eax;
+          }
+          break;
+        default :
+          r->eax = -1;
+          break;
+      }
+      break;
     case SYS_exit :
       _halt(a[1]);
-      return r;
+      break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
 
-  return NULL;
+  return r;
 }

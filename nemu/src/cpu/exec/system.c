@@ -37,10 +37,6 @@ make_EHelper(int) {
   raise_intr(id_dest->imm, decoding.seq_eip);
 
   print_asm("int %s", id_dest->str);
-
-#ifdef DIFF_TEST
-  diff_test_skip_nemu();
-#endif
 }
 
 make_EHelper(iret) {

@@ -55,6 +55,8 @@ make_EHelper(rcr);
 make_EHelper(setcc);
 make_EHelper(not);
 make_EHelper(test);
+make_EHelper(bsf);
+make_EHelper(bsr);
 
 make_EHelper(lidt);
 make_EHelper(mov_r2cr);
