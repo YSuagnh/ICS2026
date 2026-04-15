@@ -99,3 +99,18 @@ make_EHelper(lea) {
   operand_write(id_dest, &t2);
   print_asm_template2(lea);
 }
+
+make_EHelper(movs) {
+  rtl_lm(&t0, &cpu.esi, id_dest->width);
+  rtl_sm(&cpu.edi, id_dest->width, &t0);
+  
+  if (cpu.eflags.DF == 0) {
+    rtl_addi(&cpu.esi, &cpu.esi, id_dest->width);
+    rtl_addi(&cpu.edi, &cpu.edi, id_dest->width);
+  } else {
+    rtl_subi(&cpu.esi, &cpu.esi, id_dest->width);
+    rtl_subi(&cpu.edi, &cpu.edi, id_dest->width);
+  }
+
+  print_asm_template1(movs);
+}

@@ -1,5 +1,4 @@
 #include "fs.h"
-#include <sys/types.h>
 
 typedef struct {
   char *name;
@@ -25,10 +24,13 @@ static Finfo file_table[] __attribute__((used)) = {
 
 void init_fs() {
   // TODO: initialize the size of /dev/fb
+  file_table[FD_FB].size = _screen.height * _screen.width * sizeof(uint32_t);
 }
 
 void ramdisk_read(void *buf, off_t offset, size_t len);
 void ramdisk_write(const void *buf, off_t offset, size_t len);
+void fb_write(const void *buf, off_t offset, size_t len);
+void dispinfo_read(void *buf, off_t offset, size_t len);
 
 int fs_open(const char *pathname, int flags, int mode) {
   int len = strlen(pathname);
@@ -44,9 +46,24 @@ int fs_open(const char *pathname, int flags, int mode) {
 
 ssize_t fs_read(int fd, void *buf, int len) {
   Finfo *f = &file_table[fd];
-  len = f->open_offset + len > f->size ? f->size - f->open_offset : len;
-  ramdisk_read(buf, f->disk_offset + f->open_offset, len);
-  f->open_offset += len;
+  switch (fd) {
+    case FD_DISPINFO :
+      len = f->open_offset + len > f->size ? f->size - f->open_offset : len;
+      dispinfo_read(buf, f->open_offset, len);
+      f->open_offset += len;
+      break;
+    default:
+      len = f->open_offset + len > f->size ? f->size - f->open_offset : len;
+      ramdisk_read(buf, f->disk_offset + f->open_offset, len);
+      f->open_offset += len;
+      break;
+    case FD_STDERR :
+    case FD_STDIN :
+    case FD_STDOUT :
+    case FD_EVENTS :
+    case FD_FB :
+      len = -1;
+  }
   return len;
 }
 
@@ -56,17 +73,20 @@ ssize_t fs_write(int fd, void *buf, int len) {
   Finfo *f = &file_table[fd];
   int cnt = -1;
   switch (fd) {
-    case 1:
-    case 2:
+    case FD_STDOUT:
+    case FD_STDERR:
       cnt = 0;
       while(cnt < len) {
         _putc(((char*)buf)[cnt++]);
       }
-    case 0:
-    case 3:
-    case 4:
-    case 5:
+    case FD_STDIN:
+    case FD_DISPINFO:
       len = cnt;
+      break;
+    case FD_FB :
+      len = f->open_offset + len > f->size ? f->size - f->open_offset : len;
+      fb_write(buf, f->open_offset, len);
+      f->open_offset += len;
       break;
     default:
       len = f->open_offset + len > f->size ? f->size - f->open_offset : len;
