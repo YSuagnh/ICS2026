@@ -31,6 +31,7 @@ void ramdisk_read(void *buf, off_t offset, size_t len);
 void ramdisk_write(const void *buf, off_t offset, size_t len);
 void fb_write(const void *buf, off_t offset, size_t len);
 void dispinfo_read(void *buf, off_t offset, size_t len);
+size_t events_read(void *buf, size_t len);
 
 int fs_open(const char *pathname, int flags, int mode) {
   int len = strlen(pathname);
@@ -57,10 +58,12 @@ ssize_t fs_read(int fd, void *buf, int len) {
       ramdisk_read(buf, f->disk_offset + f->open_offset, len);
       f->open_offset += len;
       break;
+    case FD_EVENTS :
+      len = events_read(buf, len);
+      break;
     case FD_STDERR :
     case FD_STDIN :
     case FD_STDOUT :
-    case FD_EVENTS :
     case FD_FB :
       len = -1;
   }
@@ -81,6 +84,7 @@ ssize_t fs_write(int fd, void *buf, int len) {
       }
     case FD_STDIN:
     case FD_DISPINFO:
+    case FD_EVENTS:
       len = cnt;
       break;
     case FD_FB :
