@@ -1,6 +1,12 @@
 #include "common.h"
 #include "syscall.h"
 
+ssize_t fs_read(int fd, void *buf, int len);
+ssize_t fs_write(int fd, void *buf, int len);
+int fs_open(const char *pathname, int flags, int mode);
+off_t fs_lseek(int fd, off_t offset, int whence);
+int fs_close(int fd);
+
 _RegSet* do_syscall(_RegSet *r) {
   uintptr_t a[4];
   a[0] = SYSCALL_ARG1(r);
@@ -11,20 +17,23 @@ _RegSet* do_syscall(_RegSet *r) {
     case SYS_none :
       r->eax = 1;
       break;
+    case SYS_open :
+      r->eax = fs_open((void*)a[1], a[2], a[3]);
+      break;
+    case SYS_read :
+      r->eax = fs_read(a[1], (void*)a[2], a[3]);
+      break;
     case SYS_write :
+      r->eax = fs_write(a[1], (void*)a[2], a[3]);
+      break;
+    case SYS_close :
+      r->eax = fs_close(a[1]);
+      break;
+    case SYS_lseek :
+      r->eax = fs_lseek(a[1], a[2], a[3]);
+      break;
+    case SYS_brk :
       r->eax = 0;
-      switch (a[1]) {
-        case 1 :
-        case 2 :
-          while (r->eax < a[3]) {
-            _putc(((char *)a[2])[r->eax]);
-            ++r->eax;
-          }
-          break;
-        default :
-          r->eax = -1;
-          break;
-      }
       break;
     case SYS_exit :
       _halt(a[1]);
