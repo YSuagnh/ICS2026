@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include "am.h"
 #include <x86.h>
 #include <x86_64-linux-gnu/sys/types.h>
 
@@ -85,5 +85,32 @@ void _unmap(_Protect *p, void *va) {
 }
 
 _RegSet *_umake(_Protect *p, _Area ustack, _Area kstack, void *entry, char *const argv[], char *const envp[]) {
-  return NULL;
+  (void)p;
+  (void)kstack;
+  (void)argv;
+  (void)envp;
+
+  uintptr_t sp = (uintptr_t)ustack.end;
+
+  // _start(argc=0, argv=NULL, envp=NULL)
+  sp -= sizeof(uintptr_t);
+  *(uintptr_t *)sp = 0; // envp
+  sp -= sizeof(uintptr_t);
+  *(uintptr_t *)sp = 0; // argv
+  sp -= sizeof(uintptr_t);
+  *(uintptr_t *)sp = 0; // argc
+  sp -= sizeof(uintptr_t);
+  *(uintptr_t *)sp = 0; // return address (unused)
+
+  uintptr_t user_sp = sp;
+
+  sp -= sizeof(_RegSet);
+  _RegSet *tf = (_RegSet *)sp;
+  *tf = (_RegSet){0};
+  tf->eip = (uintptr_t)entry;
+  tf->cs = 8;
+  tf->eflags = FL_IF;
+  tf->esp = user_sp - sizeof(uintptr_t) * 5;
+
+  return tf;
 }

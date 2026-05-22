@@ -114,3 +114,27 @@ make_EHelper(movs) {
 
   print_asm_template1(movs);
 }
+
+make_EHelper(stos) {
+  int width = decoding.src.width;
+  rtl_lr(&t0, R_EAX, width);
+  rtl_sm(&cpu.edi, width, &t0);
+
+  if (cpu.eflags.DF == 0) {
+    rtl_addi(&cpu.edi, &cpu.edi, width);
+  } else {
+    rtl_subi(&cpu.edi, &cpu.edi, width);
+  }
+
+  if (width == 1) {
+    print_asm("stosb");
+  } else if (width == 2) {
+    print_asm("stosw");
+  } else {
+    print_asm("stosd");
+  }
+}
+
+make_EHelper(clc) {
+  cpu.flags = 0;
+}

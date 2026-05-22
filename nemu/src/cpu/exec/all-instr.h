@@ -13,6 +13,8 @@ make_EHelper(movsx);
 make_EHelper(movzx);
 make_EHelper(lea);
 make_EHelper(movs);
+make_EHelper(stos);
+make_EHelper(clc);
 
 make_EHelper(operand_size);
 
