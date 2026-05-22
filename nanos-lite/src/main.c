@@ -1,14 +1,16 @@
 #include "common.h"
+#include "debug.h"
 
 /* Uncomment these macros to enable corresponding functionality. */
 #define HAS_ASYE
-//#define HAS_PTE
+#define HAS_PTE
 
 void init_mm(void);
 void init_ramdisk(void);
 void init_device(void);
 void init_irq(void);
 void init_fs(void);
+void load_prog(const char *filename);
 uint32_t loader(_Protect *, const char *);
 
 int main() {
@@ -30,8 +32,9 @@ int main() {
 
   init_fs();
 
-  uint32_t entry = loader(NULL, "/bin/pal");
-  ((void (*)(void))entry)();
+  Log("!!!\n");
+
+  load_prog("/bin/pal");
 
   panic("Should not reach here");
 }

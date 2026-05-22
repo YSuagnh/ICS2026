@@ -6,6 +6,7 @@ ssize_t fs_write(int fd, void *buf, int len);
 int fs_open(const char *pathname, int flags, int mode);
 off_t fs_lseek(int fd, off_t offset, int whence);
 int fs_close(int fd);
+int mm_brk(uint32_t new_brk);
 
 _RegSet* do_syscall(_RegSet *r) {
   uintptr_t a[4];
@@ -33,7 +34,7 @@ _RegSet* do_syscall(_RegSet *r) {
       r->eax = fs_lseek(a[1], a[2], a[3]);
       break;
     case SYS_brk :
-      r->eax = 0;
+      r->eax = mm_brk(a[1]);
       break;
     case SYS_exit :
       _halt(a[1]);

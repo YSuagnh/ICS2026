@@ -1,7 +1,9 @@
+#include "arch.h"
 #include "common.h"
+#include "memory.h"
 #include <sys/types.h>
 
-#define DEFAULT_ENTRY ((void *)0x4000000)
+#define DEFAULT_ENTRY ((void *)0x8048000)
 
 void ramdisk_write(const void *buf, off_t offset, size_t len);
 void ramdisk_read(const void *buf, off_t offset, size_t len);
@@ -17,6 +19,12 @@ ssize_t fs_fsize(int fd);
 uintptr_t loader(_Protect *as, const char *filename) {
   Log("Filename is %s\n", filename);
   int fd = fs_open(filename, 0, 0);
-  fs_read(fd, DEFAULT_ENTRY, fs_fsize(fd));
+  int fsize = fs_fsize(fd);
+  uint32_t vaddr = (uint32_t)DEFAULT_ENTRY;
+  for(uint32_t p = 0; p < fsize; p += PGSIZE, vaddr += PGSIZE) {
+    uint32_t paddr = (uint32_t)new_page();
+    _map(as, (void*)vaddr, (void*)paddr);
+    fs_read(fd, (void*)paddr, PGSIZE);
+  }
   return (uintptr_t)DEFAULT_ENTRY;
 }

@@ -1,4 +1,6 @@
+#include <stdint.h>
 #include <x86.h>
+#include <x86_64-linux-gnu/sys/types.h>
 
 #define PG_ALIGN __attribute((aligned(PGSIZE)))
 
@@ -66,6 +68,17 @@ void _switch(_Protect *p) {
 }
 
 void _map(_Protect *p, void *va, void *pa) {
+  PDE *updir = (PDE*)(p->ptr);
+  uint32_t pdir_idx = (uintptr_t)va >> 22;
+  uint32_t pt_idx = ((uintptr_t)va >> 12) & 0x3ff;
+  
+  if (!(updir[pdir_idx] & PTE_P)) {
+    PTE *ptab = (PTE*)palloc_f();
+    updir[pdir_idx] = (uintptr_t)ptab | PTE_P;
+  }
+  
+  PTE *ptab = (PTE*)(updir[pdir_idx] & ~0xfff);
+  ptab[pt_idx] = (uintptr_t)pa | PTE_P;
 }
 
 void _unmap(_Protect *p, void *va) {
