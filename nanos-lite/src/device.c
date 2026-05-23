@@ -9,6 +9,8 @@ static const char *keyname[256] __attribute__((used)) = {
   _KEYS(NAME)
 };
 
+void change_game();
+
 size_t events_read(void *buf, size_t len) {
   int key = _read_key();
   bool down = false;
@@ -21,6 +23,7 @@ size_t events_read(void *buf, size_t len) {
   } else {
     snprintf(buf, len, "t %d\n", _uptime());
   }
+  if(key == _KEY_F12 && down) change_game();
   return strlen((char *)buf);
 }
 

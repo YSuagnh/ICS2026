@@ -1,4 +1,6 @@
 #include "proc.h"
+#include "am.h"
+#include "common.h"
 
 #define MAX_NR_PROC 4
 
@@ -27,20 +29,31 @@ void load_prog(const char *filename) {
 }
 
 static int cnt = 0;
+static PCB* currentgame = NULL;
 
 _RegSet* schedule(_RegSet *prev) {
   if (nr_proc == 0) {
     return prev;
   }
 
+  if(currentgame == NULL) {
+    currentgame = &pcb[1];
+  }
+
   if (current != NULL) {
     current->tf = prev;
-    if((++cnt) % 100) current = &pcb[0];
-    else current = &pcb[1];
+    if((++cnt) % 100) current = currentgame;
+    else current = &pcb[0];
   } else {
     current = &pcb[0];
   }
 
   _switch(&current->as);
   return current->tf;
+}
+
+void change_game() {
+  if(currentgame - pcb == 1) {
+    currentgame = &pcb[2];
+  } else currentgame = &pcb[1];
 }
