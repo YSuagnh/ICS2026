@@ -26,6 +26,8 @@ void load_prog(const char *filename) {
   pcb[i].tf = _umake(&pcb[i].as, stack, stack, (void *)entry, NULL, NULL);
 }
 
+static int cnt = 0;
+
 _RegSet* schedule(_RegSet *prev) {
   if (nr_proc == 0) {
     return prev;
@@ -33,9 +35,8 @@ _RegSet* schedule(_RegSet *prev) {
 
   if (current != NULL) {
     current->tf = prev;
-    int idx = (int)(current - pcb);
-    idx = (idx + 1) % nr_proc;
-    current = &pcb[idx];
+    if((++cnt) % 100) current = &pcb[0];
+    else current = &pcb[1];
   } else {
     current = &pcb[0];
   }

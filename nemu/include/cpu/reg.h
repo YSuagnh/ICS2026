@@ -68,6 +68,7 @@ typedef struct {
     } eflags;
   } ;
   uint32_t CR0, CR3;
+  bool INTR;
 } CPU_state;
 
 extern CPU_state cpu;

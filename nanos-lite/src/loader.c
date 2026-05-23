@@ -17,7 +17,7 @@ int fs_close(int fd);
 ssize_t fs_fsize(int fd);
 
 uintptr_t loader(_Protect *as, const char *filename) {
-  Log("Filename is %s\n", filename);
+  Log("Filename is %s", filename);
   int fd = fs_open(filename, 0, 0);
   int fsize = fs_fsize(fd);
   uint32_t vaddr = (uint32_t)DEFAULT_ENTRY;
