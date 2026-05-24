@@ -42,8 +42,8 @@ _RegSet* schedule(_RegSet *prev) {
 
   if (current != NULL) {
     current->tf = prev;
-    if((++cnt) % 100) current = currentgame;
-    else current = &pcb[0];
+    if((++cnt) % 1000) current = currentgame;
+    else current = &pcb[0], cnt = 0;
   } else {
     current = &pcb[0];
   }
